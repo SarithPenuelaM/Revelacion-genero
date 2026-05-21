@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Revelación de Género | 14 de Junio</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      color: #665353;
+      background: linear-gradient(135deg, #fffafa 0%, #ffffff 45%, #f1f9ff 100%);
+      overflow-x: hidden;
+    }
+
+    .hero {
+      min-height: 100vh;
+      padding: 36px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .hero::before,
+    .hero::after {
+      content: '';
+      position: absolute;
+      width: 420px;
+      height: 420px;
+      border-radius: 50%;
+      filter: blur(4px);
+      opacity: 0.55;
+      z-index: 0;
+    }
+
+    .hero::before { background: #f9cfd8; left: -170px; bottom: -150px; }
+    .hero::after { background: #cfe9ff; right: -170px; top: -150px; }
+
+    .main-card {
+      width: 100%;
+      max-width: 980px;
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(218, 166, 56, 0.2);
+      border-radius: 34px;
+      padding: 48px 30px;
+      text-align: center;
+      box-shadow: 0 24px 70px rgba(117, 91, 91, 0.12);
+      position: relative;
+      z-index: 1;
+    }
+
+    .gold { color: #c9962e; }
+    .blue { color: #86bde1; }
+    .pink { color: #ee9faa; }
+
+    .stars {
+      color: #c9962e;
+      font-size: 24px;
+      letter-spacing: 12px;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      font-family: 'Great Vibes', cursive;
+      font-size: clamp(62px, 10vw, 120px);
+      line-height: 0.95;
+      font-weight: 400;
+    }
+
+    .subtitle {
+      margin-top: 22px;
+      letter-spacing: 2px;
+      color: #c9962e;
+      font-weight: 600;
+      font-size: clamp(15px, 2vw, 20px);
+    }
+
+    .details {
+      margin: 32px auto 0;
+      max-width: 760px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .detail-box {
+      background: linear-gradient(180deg, #ffffff 0%, #fff8f8 100%);
+      border-radius: 22px;
+      padding: 18px;
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.05);
+      border: 1px solid #f3e5e5;
+    }
+
+    .detail-box strong {
+      display: block;
+      color: #c9962e;
+      margin-bottom: 4px;
+    }
+
+    .countdown {
+      margin: 30px auto 0;
+      max-width: 760px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .time-box {
+      border-radius: 20px;
+      background: linear-gradient(135deg, #eef8ff, #fff0f3);
+      padding: 16px 10px;
+    }
+
+    .time-box span {
+      display: block;
+      font-size: 32px;
+      font-weight: 700;
+      color: #c9962e;
+    }
+
+    .btn {
+      display: inline-flex;
+      min-height: 48px;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 24px;
+      border: 0;
+      padding: 14px 24px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #86bde1, #ee9faa);
+      color: white;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      box-shadow: 0 12px 28px rgba(134, 189, 225, 0.28);
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .btn-secondary {
+      background: linear-gradient(90deg, #c9962e, #e7c16b);
+    }
+
+    .section {
+      padding: 64px 18px;
+    }
+
+    .section-title {
+      font-family: 'Great Vibes', cursive;
+      color: #c9962e;
+      font-size: clamp(44px, 6vw, 70px);
+      font-weight: 400;
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .container {
+      max-width: 1080px;
+      margin: 0 auto;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 22px;
+    }
+
+    .panel {
+      background: rgba(255, 255, 255, 0.92);
+      border-radius: 28px;
+      padding: 26px;
+      box-shadow: 0 18px 50px rgba(117, 91, 91, 0.09);
+      border: 1px solid #f2e5e5;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 7px;
+      font-weight: 600;
+      color: #7d6666;
+    }
+
+    input,
+    textarea,
+    select,
+    button {
+      font-size: 16px;
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      border: 1px solid #e8d8d8;
+      border-radius: 14px;
+      padding: 13px 14px;
+      font-family: 'Poppins', sans-serif;
+      outline: none;
+      background: #ffffff;
+      margin-bottom: 14px;
+    }
+
+    textarea {
+      min-height: 112px;
+      resize: vertical;
+    }
+
+    .mini-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .mini-stat {
+      background: linear-gradient(135deg, #ffffff, #fff6f8);
+      border: 1px solid #f0dddd;
+      border-radius: 18px;
+      padding: 14px;
+      text-align: center;
+      font-weight: 700;
+      color: #7d6666;
+    }
+
+    .mini-stat span {
+      display: block;
+      font-size: 26px;
+      color: #c9962e;
+    }
+
+    .poll-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .poll-btn {
+      border: 0;
+      border-radius: 18px;
+      padding: 18px;
+      cursor: pointer;
+      font-weight: 800;
+      color: #ffffff;
+      font-size: 17px;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .poll-boy { background: #86bde1; }
+    .poll-girl { background: #ee9faa; }
+
+    .progress {
+      height: 18px;
+      background: #f5eeee;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 12px;
+    }
+
+    .bar {
+      height: 100%;
+      width: 0%;
+      transition: width 0.4s ease;
+    }
+
+    .bar-boy { background: #86bde1; }
+    .bar-girl { background: #ee9faa; }
+
+    .messages,
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 16px;
+    }
+
+    .message-card {
+      border-radius: 22px;
+      background: linear-gradient(180deg, #ffffff, #fff9fb);
+      padding: 18px;
+      border: 1px solid #f3e0e0;
+    }
+
+    .message-card strong { color: #c9962e; }
+    .message-card small {
+      display: block;
+      margin-top: 8px;
+      color: #9a8a8a;
+    }
+
+    .gallery img {
+      width: 100%;
+      cursor: pointer;
+      height: 230px;
+      object-fit: cover;
+      border-radius: 22px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+    }
+
+    .qr-box {
+      display: flex;
+      justify-content: center;
+      padding: 18px;
+      background: #ffffff;
+      border-radius: 22px;
+      margin-top: 12px;
+    }
+
+    .qr-box img {
+      width: 180px;
+      height: 180px;
+      border-radius: 12px;
+    }
+
+    iframe {
+      width: 100%;
+      height: 360px;
+      border: 0;
+      border-radius: 24px;
+      margin-top: 14px;
+    }
+
+    .album-actions {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-top: 26px;
+    }
+
+    .album-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.82);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 20px;
+    }
+
+    .album-modal.active {
+      display: flex;
+    }
+
+    .album-content {
+      max-width: 900px;
+      width: 100%;
+      position: relative;
+      text-align: center;
+    }
+
+    .album-content img {
+      width: 100%;
+      max-height: 80vh;
+      object-fit: contain;
+      border-radius: 24px;
+      background: white;
+    }
+
+    .close-album {
+      position: absolute;
+      top: -55px;
+      right: 0;
+      background: white;
+      color: #665353;
+      border: 0;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    .album-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255, 255, 255, 0.9);
+      border: 0;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .album-prev { left: -25px; }
+    .album-next { right: -25px; }
+
+    .album-caption {
+      margin-top: 18px;
+      color: white;
+      font-weight: 600;
+    }
+
+    .status-text {
+      margin-top: 14px;
+      color: #9a8a8a;
+      text-align: center;
+      min-height: 24px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 34px 18px;
+      color: #9a8a8a;
+    }
+
+    @media (max-width: 760px) {
+      .hero {
+        min-height: auto;
+        padding: 22px 12px 36px;
+      }
+
+      .hero::before,
+      .hero::after {
+        width: 260px;
+        height: 260px;
+      }
+
+      .hero::before {
+        left: -130px;
+        bottom: -90px;
+      }
+
+      .hero::after {
+        right: -130px;
+        top: -90px;
+      }
+
+      .main-card {
+        padding: 30px 16px;
+        border-radius: 26px;
+      }
+
+      .stars {
+        font-size: 18px;
+        letter-spacing: 8px;
+      }
+
+      h1 {
+        font-size: clamp(58px, 18vw, 76px);
+      }
+
+      .subtitle {
+        font-size: 13px;
+        letter-spacing: 1px;
+        line-height: 1.5;
+      }
+
+      .details,
+      .countdown,
+      .grid,
+      .mini-stats {
+        grid-template-columns: 1fr;
+      }
+
+      .details,
+      .countdown {
+        gap: 10px;
+        margin-top: 22px;
+      }
+
+      .detail-box,
+      .time-box,
+      .panel {
+        border-radius: 20px;
+      }
+
+      .time-box {
+        padding: 12px 10px;
+      }
+
+      .time-box span {
+        font-size: 28px;
+      }
+
+      .section {
+        padding: 42px 12px;
+      }
+
+      .section-title {
+        font-size: clamp(40px, 14vw, 54px);
+        margin-bottom: 18px;
+      }
+
+      .panel {
+        padding: 20px 14px;
+      }
+
+      .btn {
+        width: 100%;
+        margin-top: 16px;
+        padding: 13px 16px;
+        text-align: center;
+      }
+
+      .poll-buttons {
+        grid-template-columns: 1fr;
+      }
+
+      .poll-btn {
+        min-height: 52px;
+      }
+
+      .messages,
+      .gallery {
+        grid-template-columns: 1fr;
+      }
+
+      .gallery img {
+        height: 220px;
+      }
+
+      .qr-box img {
+        width: min(180px, 75vw);
+        height: min(180px, 75vw);
+      }
+
+      iframe {
+        height: 300px;
+        border-radius: 18px;
+      }
+
+      .album-modal {
+        padding: 12px;
+      }
+
+      .album-content img {
+        max-height: 68vh;
+        border-radius: 18px;
+      }
+
+      .close-album {
+        top: -48px;
+        right: 0;
+      }
+
+      .album-nav {
+        width: 42px;
+        height: 42px;
+        font-size: 22px;
+      }
+
+      .album-prev { left: 4px; }
+      .album-next { right: 4px; }
+
+      .album-caption {
+        font-size: 13px;
+        padding: 0 44px;
+        word-break: break-word;
+      }
+    }
+
+    @media (max-width: 380px) {
+      h1 {
+        font-size: 54px;
+      }
+
+      .main-card {
+        padding: 26px 12px;
+      }
+
+      .section-title {
+        font-size: 38px;
+      }
+
+      .panel {
+        padding: 18px 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <section class="hero">
+    <div class="main-card">
+      <div class="stars">* * *</div>
+      <h1><span class="blue">Boy</span> <span class="gold">or</span> <span class="pink">Girl?</span></h1>
+      <p class="subtitle">UNA NUEVA LUZ ESTA POR REVELARSE</p>
+
+      <div class="details">
+        <div class="detail-box"><strong>Fecha</strong>14 de junio</div>
+        <div class="detail-box"><strong>Hora</strong>3:00 PM</div>
+        <div class="detail-box"><strong>Tematica</strong>Vestir de blanco</div>
+      </div>
+
+      <div class="countdown">
+        <div class="time-box"><span id="days">0</span>Dias</div>
+        <div class="time-box"><span id="hours">0</span>Horas</div>
+        <div class="time-box"><span id="minutes">0</span>Min</div>
+        <div class="time-box"><span id="seconds">0</span>Seg</div>
+      </div>
+
+      <a class="btn" href="https://www.google.com/maps/search/?api=1&query=Salon%20de%20Eventos%20Los%20Estribos%20Cra.%2010%20%231%20Sur10%2C%20Jamundi%2C%20Colombia" target="_blank" rel="noopener noreferrer">Ver ubicacion: Los Estribos</a>
+      <a class="btn btn-secondary" id="liveStreamButton" href="#" target="_blank" rel="noopener noreferrer" style="display:none;">Ver revelacion en vivo</a>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container grid">
+      <div class="panel">
+        <h2 class="section-title">Confirma tu asistencia</h2>
+        <form id="guestForm">
+          <label for="guestName">Nombre completo</label>
+          <input id="guestName" required placeholder="Ej: Maria Perez" />
+
+          <label for="attendanceType">Como vas a participar?</label>
+          <select id="attendanceType" required>
+            <option value="presencial">Voy presencialmente</option>
+            <option value="virtual">Participare virtualmente</option>
+          </select>
+
+          <label for="guestCount">Con cuantas personas participaras?</label>
+          <select id="guestCount" required>
+            <option value="1">Solo yo</option>
+            <option value="2">2 personas</option>
+            <option value="3">3 personas</option>
+            <option value="4">4 personas</option>
+            <option value="5">5 personas</option>
+            <option value="6">6 personas</option>
+          </select>
+
+          <label for="giftType">¿Quieres llevar un detalle para el bebé?</label>
+          <select id="giftType">
+            <option value="">Prefiero sorpresa ✨</option>
+            <option value="pañales-etapa-2">Pañales Etapa 2</option>
+            <option value="pañales-etapa-3">Pañales Etapa 3</option>
+            <option value="pañales-etapa-4">Pañales Etapa 4</option>
+            <option value="pañitos">Pañitos húmedos</option>
+            <option value="cremas">Cremas para bebé</option>
+            <option value="ropa">Ropita</option>
+            <option value="juguete">Juguete</option>
+            <option value="otro">Otro detalle</option>
+          </select>
+
+          <label for="guestMessage">Mensaje para el bebe</label>
+          <textarea id="guestMessage" required placeholder="Escribe un mensaje bonito..."></textarea>
+
+          <button class="btn" type="submit">Confirmar asistencia y publicar mensaje</button>
+
+          <div class="mini-stats">
+            <div class="mini-stat"><span id="totalConfirmed">0</span>Total</div>
+            <div class="mini-stat"><span id="totalPresencial">0</span>Presencial</div>
+            <div class="mini-stat"><span id="totalVirtual">0</span>Virtual</div>
+          </div>
+        </form>
+      </div>
+
+      <div class="panel">
+        <h2 class="section-title">Team Boy / Girl</h2>
+        <p style="text-align:center;margin-bottom:18px;">Vota por tu prediccion</p>
+        <div class="poll-buttons">
+          <button class="poll-btn poll-boy" type="button" id="boyVoteButton">Team Boy</button>
+          <button class="poll-btn poll-girl" type="button" id="girlVoteButton">Team Girl</button>
+        </div>
+
+        <div style="margin-top:24px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
+            <strong>Boy: <span id="boyVotes">0</span> votos</strong>
+            <strong><span id="boyPercent">0</span>%</strong>
+          </div>
+          <div class="progress"><div id="boyBar" class="bar bar-boy"></div></div>
+        </div>
+
+        <div style="margin-top:16px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
+            <strong>Girl: <span id="girlVotes">0</span> votos</strong>
+            <strong><span id="girlPercent">0</span>%</strong>
+          </div>
+          <div class="progress"><div id="girlBar" class="bar bar-girl"></div></div>
+        </div>
+
+        <div style="margin-top:22px;text-align:center;background:#fff7f8;padding:14px;border-radius:18px;font-weight:600;color:#7d6666;">
+          Total de votos: <span id="totalVotes">0</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container grid">
+      <div class="panel">
+        <h2 class="section-title">Sube tus fotos</h2>
+        <p style="text-align:center;margin-bottom:12px;">Escanea este QR durante el evento o desde casa para subir fotos al album.</p>
+        <div id="qrcode" class="qr-box"></div>
+        <label for="photoInput" style="margin-top:18px;">Cargar foto del evento o de tu participacion virtual</label>
+        <input id="photoInput" type="file" accept="image/*" />
+        <button class="btn" type="button" id="uploadPhotoButton">Subir foto</button>
+        <p id="photoStatus" class="status-text"></p>
+      </div>
+
+      <div class="panel">
+        <h2 class="section-title">Album de recuerdos</h2>
+        <p style="text-align:center;">Todas las fotos, mensajes y recuerdos del evento quedaran guardados aqui.</p>
+
+        <div class="album-actions">
+          <button class="btn" type="button" id="openAlbumButton">Ver album</button>
+          <button class="btn" type="button" id="downloadAlbumButton">Descargar album</button>
+          <button class="btn" type="button" id="downloadMessagesButton">Descargar mensajes</button>
+        </div>
+
+        <button class="btn" type="button" id="createVideoButton">Crear video resumen</button>
+        <p id="videoStatus" class="status-text"></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <h2 class="section-title">Muro de mensajes en vivo</h2>
+      <div id="messages" class="messages"></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <h2 class="section-title">Album del evento</h2>
+      <div id="gallery" class="gallery"></div>
+
+      <div id="albumModal" class="album-modal" aria-hidden="true">
+        <div class="album-content">
+          <button class="close-album" type="button" id="closeAlbumButton">x</button>
+          <button class="album-nav album-prev" type="button" id="previousPhotoButton">‹</button>
+          <img id="albumImage" src="" alt="Album">
+          <button class="album-nav album-next" type="button" id="nextPhotoButton">›</button>
+          <div class="album-caption" id="albumCaption"></div>
+          <button class="btn" type="button" id="downloadCurrentPhotoButton" style="margin-top:20px;">Descargar foto</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container panel">
+      <h2 class="section-title">Como llegar</h2>
+      <iframe
+        src="https://maps.google.com/maps?q=Salon%20de%20Eventos%20Los%20Estribos%20Cra.%2010%20%231%20Sur10%2C%20Jamundi%2C%20Valle%20del%20Cauca%2C%20Colombia&ll=3.25347917,-76.54564113&z=17&output=embed"
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade">
+      </iframe>
+    </div>
+  </section>
+
+  <footer>Gracias por ser parte de este momento tan especial</footer>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      onSnapshot,
+      doc,
+      getDoc,
+      setDoc,
+      updateDoc,
+      increment,
+      serverTimestamp,
+      query,
+      orderBy
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBmQVXE5AfBkySD-FIAZ0tyIHfG67eA_7c",
+      authDomain: "revelacion-genero-b92df.firebaseapp.com",
+      projectId: "revelacion-genero-b92df",
+      storageBucket: "revelacion-genero-b92df.firebasestorage.app",
+      messagingSenderId: "239259103065",
+      appId: "1:239259103065:web:d1efbc6a4c96c798c36648"
+    };
+
+    const CLOUDINARY_CLOUD_NAME = "dmafcg3aa";
+    const CLOUDINARY_UPLOAD_PRESET = "revelacion_genero";
+    const LIVE_STREAM_URL = "#";
+    const EVENT_DATE = new Date("2026-06-14T15:00:00-05:00").getTime();
+    const QR_URL = window.location.href;
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let albumPhotos = [];
+    let currentPhotoIndex = 0;
+
+    const el = (id) => document.getElementById(id);
+
+    function setText(id, value) {
+      const element = el(id);
+      if (element) element.textContent = String(value);
+    }
+
+    function createElement(tag, className, text) {
+      const element = document.createElement(tag);
+      if (className) element.className = className;
+      if (typeof text === "string") element.textContent = text;
+      return element;
+    }
+
+    function formatCountDown() {
+      const now = Date.now();
+      const diff = EVENT_DATE - now;
+
+      if (diff <= 0) {
+        return { days: 0, hours: 0, minutes: 0, seconds: 0 };
+      }
+
+      return {
+        days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
+        minutes: Math.floor((diff / (1000 * 60)) % 60),
+        seconds: Math.floor((diff / 1000) % 60)
+      };
+    }
+
+    function updateCountDown() {
+      const remaining = formatCountDown();
+      setText("days", remaining.days);
+      setText("hours", remaining.hours);
+      setText("minutes", remaining.minutes);
+      setText("seconds", remaining.seconds);
+    }
+
+    function renderQrCode() {
+      const qrContainer = el("qrcode");
+      const qrImage = document.createElement("img");
+      const encodedUrl = encodeURIComponent(QR_URL);
+      qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodedUrl}`;
+      qrImage.alt = "Codigo QR para acceder al album";
+      qrContainer.innerHTML = "";
+      qrContainer.appendChild(qrImage);
+    }
+
+    async function handleGuestSubmit(event) {
+      event.preventDefault();
+
+      const name = el("guestName").value.trim();
+      const attendanceType = el("attendanceType").value;
+      const count = Number(el("guestCount").value);
+      const giftType = el("giftType").value;
+      const message = el("guestMessage").value.trim();
+
+      if (!name || !message || !count) {
+        alert("Por favor completa tu nombre, cantidad de personas y mensaje.");
+        return;
+      }
+
+      await addDoc(collection(db, "guests"), {
+        name,
+        attendanceType,
+        count,
+        message,
+        giftType,
+        createdAt: serverTimestamp()
+      });
+
+      event.target.reset();
+      alert("Gracias por confirmar tu asistencia.");
+    }
+
+    async function vote(team) {
+      if (!["boy", "girl"].includes(team)) return;
+
+      const voteRef = doc(db, "poll", "gender");
+      const snapshot = await getDoc(voteRef);
+
+      if (!snapshot.exists()) {
+        await setDoc(voteRef, { boy: 0, girl: 0 });
+      }
+
+      await updateDoc(voteRef, {
+        [team]: increment(1)
+      });
+    }
+
+    function renderVotes(data) {
+      const boy = Number(data?.boy || 0);
+      const girl = Number(data?.girl || 0);
+      const totalReal = boy + girl;
+      const totalForPercent = totalReal || 1;
+      const boyPercent = Math.round((boy / totalForPercent) * 100);
+      const girlPercent = Math.round((girl / totalForPercent) * 100);
+
+      setText("boyVotes", boy);
+      setText("girlVotes", girl);
+      setText("boyPercent", boyPercent);
+      setText("girlPercent", girlPercent);
+      setText("totalVotes", totalReal);
+      el("boyBar").style.width = `${boyPercent}%`;
+      el("girlBar").style.width = `${girlPercent}%`;
+    }
+
+    function renderGuests(snapshot) {
+      const messages = el("messages");
+      messages.innerHTML = "";
+
+      let totalConfirmed = 0;
+      let totalPresencial = 0;
+      let totalVirtual = 0;
+
+      snapshot.forEach((item) => {
+        const data = item.data();
+        const count = Number(data.count || 1);
+        const type = data.attendanceType === "virtual" ? "virtual" : "presencial";
+
+        totalConfirmed += count;
+        if (type === "virtual") totalVirtual += count;
+        else totalPresencial += count;
+
+        const card = createElement("div", "message-card");
+        const name = createElement("strong", "", data.name || "Invitado");
+        const message = createElement("p", "", data.message || "");
+        const gift = data.giftType
+          ? createElement("small", "", `Detalle para el bebé: ${data.giftType}`)
+          : null;
+
+        const meta = createElement(
+          "small",
+          "",
+          `${type === "virtual" ? "Participa virtualmente" : "Asiste presencialmente"} con ${count} persona(s)`
+        );
+
+        card.appendChild(name);
+        card.appendChild(message);
+        if (gift) card.appendChild(gift);
+        card.appendChild(meta);
+        messages.appendChild(card);
+      });
+
+      setText("totalConfirmed", totalConfirmed);
+      setText("totalPresencial", totalPresencial);
+      setText("totalVirtual", totalVirtual);
+    }
+
+    async function uploadPhoto() {
+      const input = el("photoInput");
+      const file = input.files[0];
+
+      if (!file) {
+        alert("Selecciona una foto primero.");
+        return;
+      }
+
+      if (!file.type.startsWith("image/")) {
+        alert("Solo puedes subir imagenes.");
+        return;
+      }
+
+      setText("photoStatus", "Subiendo foto...");
+
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+      formData.append("folder", "revelacion-genero");
+
+      try {
+        const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
+          method: "POST",
+          body: formData
+        });
+
+        if (!response.ok) {
+          throw new Error("Cloudinary upload failed");
+        }
+
+        const result = await response.json();
+
+        await addDoc(collection(db, "photos"), {
+          url: result.secure_url,
+          name: file.name,
+          createdAt: serverTimestamp()
+        });
+
+        input.value = "";
+        setText("photoStatus", "Foto subida al album.");
+        alert("Foto subida al album.");
+      } catch (error) {
+        console.error(error);
+        setText("photoStatus", "No se pudo subir la foto. Revisa Cloudinary o internet.");
+      }
+    }
+
+    function renderGallery(snapshot) {
+      const gallery = el("gallery");
+      gallery.innerHTML = "";
+      albumPhotos = [];
+
+      snapshot.forEach((item) => {
+        const data = item.data();
+        if (!data.url) return;
+
+        const index = albumPhotos.length;
+        albumPhotos.push(data);
+
+        const img = document.createElement("img");
+        img.src = data.url;
+        img.alt = data.name || "Foto del evento";
+        img.addEventListener("click", () => openAlbumAt(index));
+        gallery.appendChild(img);
+      });
+    }
+
+    function openAlbum() {
+      if (!albumPhotos.length) {
+        alert("Aun no hay fotos en el album.");
+        return;
+      }
+      openAlbumAt(0);
+    }
+
+    function openAlbumAt(index) {
+      currentPhotoIndex = index;
+      renderAlbumPhoto();
+      el("albumModal").classList.add("active");
+      el("albumModal").setAttribute("aria-hidden", "false");
+    }
+
+    function closeAlbum() {
+      el("albumModal").classList.remove("active");
+      el("albumModal").setAttribute("aria-hidden", "true");
+    }
+
+    function nextPhoto() {
+      if (!albumPhotos.length) return;
+      currentPhotoIndex = (currentPhotoIndex + 1) % albumPhotos.length;
+      renderAlbumPhoto();
+    }
+
+    function previousPhoto() {
+      if (!albumPhotos.length) return;
+      currentPhotoIndex = (currentPhotoIndex - 1 + albumPhotos.length) % albumPhotos.length;
+      renderAlbumPhoto();
+    }
+
+    function renderAlbumPhoto() {
+      const photo = albumPhotos[currentPhotoIndex];
+      if (!photo) return;
+      el("albumImage").src = photo.url;
+      setText("albumCaption", photo.name || "Recuerdo del evento");
+    }
+
+    async function downloadCurrentPhoto() {
+      const photo = albumPhotos[currentPhotoIndex];
+      if (!photo) return;
+
+      const response = await fetch(photo.url);
+      const blob = await response.blob();
+      saveAs(blob, photo.name || "foto-evento.jpg");
+    }
+
+    async function downloadAlbum() {
+      if (!albumPhotos.length) {
+        alert("Aun no hay fotos para descargar.");
+        return;
+      }
+
+      const zip = new JSZip();
+      const album = zip.folder("album-revelacion-genero");
+      album.file("mensajes.txt", buildMessagesText());
+
+      for (let index = 0; index < albumPhotos.length; index += 1) {
+        const photo = albumPhotos[index];
+        const response = await fetch(photo.url);
+        const blob = await response.blob();
+        const safeName = sanitizeFileName(photo.name || `foto-${index + 1}.jpg`);
+        album.file(`${index + 1}-${safeName}`, blob);
+      }
+
+      const content = await zip.generateAsync({ type: "blob" });
+      saveAs(content, "album-revelacion-genero.zip");
+    }
+
+    function buildMessagesText() {
+      const guestCards = document.querySelectorAll(".message-card");
+      let content = "Mensajes para el bebe\n\n";
+
+      guestCards.forEach((card) => {
+        content += `${card.innerText}\n--------------------------\n`;
+      });
+
+      return content;
+    }
+
+    function downloadMessages() {
+      const blob = new Blob([buildMessagesText()], { type: "text/plain;charset=utf-8" });
+      saveAs(blob, "mensajes-revelacion.txt");
+    }
+
+    function createVideoSummary() {
+      setText(
+        "videoStatus",
+        "Para crear el video resumen, descarga el album y subelo a CapCut, Canva o Google Photos."
+      );
+    }
+
+    function sanitizeFileName(name) {
+      return String(name).replace(/[^a-zA-Z0-9._-]/g, "_");
+    }
+
+    function setupLiveStreamButton() {
+      const liveStreamButton = el("liveStreamButton");
+      if (LIVE_STREAM_URL && LIVE_STREAM_URL !== "#") {
+        liveStreamButton.style.display = "inline-flex";
+        liveStreamButton.href = LIVE_STREAM_URL;
+      }
+    }
+
+    function setupListeners() {
+      el("guestForm").addEventListener("submit", handleGuestSubmit);
+      el("boyVoteButton").addEventListener("click", () => vote("boy"));
+      el("girlVoteButton").addEventListener("click", () => vote("girl"));
+      el("uploadPhotoButton").addEventListener("click", uploadPhoto);
+      el("openAlbumButton").addEventListener("click", openAlbum);
+      el("downloadAlbumButton").addEventListener("click", downloadAlbum);
+      el("downloadMessagesButton").addEventListener("click", downloadMessages);
+      el("createVideoButton").addEventListener("click", createVideoSummary);
+      el("closeAlbumButton").addEventListener("click", closeAlbum);
+      el("nextPhotoButton").addEventListener("click", nextPhoto);
+      el("previousPhotoButton").addEventListener("click", previousPhoto);
+      el("downloadCurrentPhotoButton").addEventListener("click", downloadCurrentPhoto);
+    }
+
+    function setupFirebaseListeners() {
+      onSnapshot(doc(db, "poll", "gender"), (snapshot) => {
+        renderVotes(snapshot.data() || { boy: 0, girl: 0 });
+      });
+
+      onSnapshot(query(collection(db, "guests"), orderBy("createdAt", "desc")), renderGuests);
+      onSnapshot(query(collection(db, "photos"), orderBy("createdAt", "desc")), renderGallery);
+    }
+
+    function runSelfTests() {
+      console.assert(sanitizeFileName("foto bonita 1.jpg") === "foto_bonita_1.jpg", "sanitizeFileName should replace spaces");
+      console.assert(typeof buildMessagesText() === "string", "buildMessagesText should return string");
+      console.assert(formatCountDown().days >= 0, "countdown days should be non-negative");
+    }
+
+    setupListeners();
+    setupLiveStreamButton();
+    renderQrCode();
+    updateCountDown();
+    setInterval(updateCountDown, 1000);
+    setupFirebaseListeners();
+    runSelfTests();
+  </script>
+</body>
+</html>
