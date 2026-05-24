@@ -656,6 +656,8 @@
             <div class="mini-stat"><span id="totalPresencial">0</span>Presencial</div>
             <div class="mini-stat"><span id="totalVirtual">0</span>Virtual</div>
           </div>
+
+          <button class="btn btn-secondary" type="button" id="printGuestReportButton">Imprimir reporte de asistencia</button>
         </form>
       </div>
 
@@ -793,6 +795,7 @@
 
     let albumPhotos = [];
     let currentPhotoIndex = 0;
+    let guestReportData = [];
 
     const el = (id) => document.getElementById(id);
 
@@ -806,6 +809,45 @@
       if (className) element.className = className;
       if (typeof text === "string") element.textContent = text;
       return element;
+    }
+
+    const GIFT_LABELS = {
+      "pañales-etapa-2": "Pañales Etapa 2",
+      "pañales-etapa-3": "Pañales Etapa 3",
+      "pañales-etapa-4": "Pañales Etapa 4",
+      "pañitos": "Pañitos húmedos",
+      "cremas": "Cremas para bebé",
+      "ropa": "Ropita",
+      "juguete": "Juguete",
+      "otro": "Otro detalle"
+    };
+
+    function getGiftLabel(value) {
+      return GIFT_LABELS[value] || "Prefiero sorpresa ✨";
+    }
+
+    function getAttendanceLabel(value) {
+      return value === "virtual" ? "Participa virtualmente" : "Asiste presencialmente";
+    }
+
+    function formatGuestDate(createdAt) {
+      if (createdAt && typeof createdAt.toDate === "function") {
+        return createdAt.toDate().toLocaleString("es-CO", {
+          dateStyle: "medium",
+          timeStyle: "short"
+        });
+      }
+
+      return "Sin fecha registrada";
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
     }
 
     function formatCountDown() {
@@ -904,6 +946,7 @@
     function renderGuests(snapshot) {
       const messages = el("messages");
       messages.innerHTML = "";
+      guestReportData = [];
 
       let totalConfirmed = 0;
       let totalPresencial = 0;
@@ -913,22 +956,34 @@
         const data = item.data();
         const count = Number(data.count || 1);
         const type = data.attendanceType === "virtual" ? "virtual" : "presencial";
+        const guestDetail = {
+          id: item.id,
+          name: data.name || "Invitado",
+          attendanceType: type,
+          attendanceLabel: getAttendanceLabel(type),
+          count,
+          giftType: data.giftType || "",
+          giftLabel: getGiftLabel(data.giftType),
+          message: data.message || "",
+          createdAt: data.createdAt || null
+        };
 
+        guestReportData.push(guestDetail);
         totalConfirmed += count;
         if (type === "virtual") totalVirtual += count;
         else totalPresencial += count;
 
         const card = createElement("div", "message-card");
-        const name = createElement("strong", "", data.name || "Invitado");
-        const message = createElement("p", "", data.message || "");
+        const name = createElement("strong", "", guestDetail.name);
+        const message = createElement("p", "", guestDetail.message);
         const gift = data.giftType
-          ? createElement("small", "", `Detalle para el bebé: ${data.giftType}`)
+          ? createElement("small", "", `Detalle para el bebé: ${guestDetail.giftLabel}`)
           : null;
 
         const meta = createElement(
           "small",
           "",
-          `${type === "virtual" ? "Participa virtualmente" : "Asiste presencialmente"} con ${count} persona(s)`
+          `${guestDetail.attendanceLabel} con ${count} persona(s)`
         );
 
         card.appendChild(name);
@@ -941,6 +996,238 @@
       setText("totalConfirmed", totalConfirmed);
       setText("totalPresencial", totalPresencial);
       setText("totalVirtual", totalVirtual);
+    }
+
+    function calculateGuestReportTotals() {
+      const totals = {
+        records: guestReportData.length,
+        confirmed: 0,
+        presencial: 0,
+        virtual: 0,
+        gifts: {}
+      };
+
+      guestReportData.forEach((guest) => {
+        const count = Number(guest.count || 1);
+        totals.confirmed += count;
+        if (guest.attendanceType === "virtual") totals.virtual += count;
+        else totals.presencial += count;
+
+        if (!totals.gifts[guest.giftLabel]) {
+          totals.gifts[guest.giftLabel] = { confirmations: 0, people: 0 };
+        }
+
+        totals.gifts[guest.giftLabel].confirmations += 1;
+        totals.gifts[guest.giftLabel].people += count;
+      });
+
+      return totals;
+    }
+
+    function buildGuestReportHtml() {
+      const totals = calculateGuestReportTotals();
+      const generatedAt = new Date().toLocaleString("es-CO", {
+        dateStyle: "full",
+        timeStyle: "short"
+      });
+
+      const giftRows = Object.entries(totals.gifts)
+        .sort(([giftA], [giftB]) => giftA.localeCompare(giftB, "es"))
+        .map(([gift, data]) => `
+          <tr>
+            <td>${escapeHtml(gift)}</td>
+            <td>${data.confirmations}</td>
+            <td>${data.people}</td>
+          </tr>
+        `)
+        .join("");
+
+      const guestRows = guestReportData
+        .map((guest, index) => `
+          <tr>
+            <td>${index + 1}</td>
+            <td>${escapeHtml(guest.name)}</td>
+            <td>${escapeHtml(guest.attendanceLabel)}</td>
+            <td>${guest.count}</td>
+            <td>${escapeHtml(guest.giftLabel)}</td>
+            <td>${escapeHtml(guest.message)}</td>
+            <td>${escapeHtml(formatGuestDate(guest.createdAt))}</td>
+          </tr>
+        `)
+        .join("");
+
+      return `
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+          <meta charset="UTF-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+          <title>Reporte de asistencia - Revelación de Género</title>
+          <style>
+            * { box-sizing: border-box; }
+            body {
+              margin: 0;
+              padding: 28px;
+              font-family: Arial, sans-serif;
+              color: #4f4242;
+              background: #ffffff;
+            }
+            .header {
+              text-align: center;
+              border-bottom: 3px solid #c9962e;
+              padding-bottom: 16px;
+              margin-bottom: 22px;
+            }
+            h1 {
+              margin: 0;
+              color: #c9962e;
+              font-size: 28px;
+            }
+            h2 {
+              color: #86bde1;
+              margin: 24px 0 12px;
+              font-size: 20px;
+            }
+            .meta {
+              margin-top: 8px;
+              color: #7d6666;
+              font-size: 13px;
+            }
+            .stats {
+              display: grid;
+              grid-template-columns: repeat(4, 1fr);
+              gap: 12px;
+              margin-bottom: 18px;
+            }
+            .stat {
+              border: 1px solid #f0dddd;
+              border-radius: 14px;
+              padding: 12px;
+              text-align: center;
+              background: #fff9fb;
+            }
+            .stat strong {
+              display: block;
+              color: #c9962e;
+              font-size: 24px;
+            }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-top: 8px;
+              font-size: 12px;
+            }
+            th,
+            td {
+              border: 1px solid #eadada;
+              padding: 8px;
+              vertical-align: top;
+              text-align: left;
+            }
+            th {
+              background: #fff0f3;
+              color: #665353;
+            }
+            .footer {
+              margin-top: 28px;
+              font-size: 12px;
+              color: #8a7a7a;
+              text-align: center;
+            }
+            @media print {
+              body { padding: 14px; }
+              .stats { grid-template-columns: repeat(4, 1fr); }
+              h2 { page-break-after: avoid; }
+              table { page-break-inside: auto; }
+              tr { page-break-inside: avoid; page-break-after: auto; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>Reporte de asistencia y regalos</h1>
+            <div class="meta">Revelación de Género | 14 de junio | Generado: ${escapeHtml(generatedAt)}</div>
+          </div>
+
+          <section>
+            <h2>Totales de asistencia</h2>
+            <div class="stats">
+              <div class="stat"><strong>${totals.confirmed}</strong>Total personas</div>
+              <div class="stat"><strong>${totals.presencial}</strong>Presencial</div>
+              <div class="stat"><strong>${totals.virtual}</strong>Virtual</div>
+              <div class="stat"><strong>${totals.records}</strong>Confirmaciones</div>
+            </div>
+          </section>
+
+          <section>
+            <h2>Totales por regalo</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Regalo / detalle</th>
+                  <th>Confirmaciones</th>
+                  <th>Personas asociadas</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${giftRows || '<tr><td colspan="3">No hay regalos registrados.</td></tr>'}
+              </tbody>
+            </table>
+          </section>
+
+          <section>
+            <h2>Detalle de asistentes</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Nombre</th>
+                  <th>Participación</th>
+                  <th>Personas</th>
+                  <th>Regalo</th>
+                  <th>Mensaje</th>
+                  <th>Fecha de confirmación</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${guestRows || '<tr><td colspan="7">No hay asistentes registrados.</td></tr>'}
+              </tbody>
+            </table>
+          </section>
+
+          <div class="footer">Gracias por ser parte de este momento tan especial.</div>
+        </body>
+        </html>
+      `;
+    }
+
+    function printGuestReport() {
+      if (!guestReportData.length) {
+        alert("Aun no hay confirmaciones para imprimir.");
+        return;
+      }
+
+      const reportWindow = window.open("", "_blank", "width=1100,height=800");
+      if (!reportWindow) {
+        alert("El navegador bloqueo la ventana del reporte. Permite ventanas emergentes e intenta de nuevo.");
+        return;
+      }
+
+      reportWindow.document.open();
+      reportWindow.document.write(buildGuestReportHtml());
+      reportWindow.document.close();
+      reportWindow.focus();
+
+      let alreadyPrinted = false;
+      const sendToPrint = () => {
+        if (alreadyPrinted) return;
+        alreadyPrinted = true;
+        reportWindow.focus();
+        reportWindow.print();
+      };
+
+      reportWindow.onload = () => setTimeout(sendToPrint, 250);
+      setTimeout(sendToPrint, 700);
     }
 
     async function uploadPhoto() {
@@ -1124,6 +1411,7 @@
       el("openAlbumButton").addEventListener("click", openAlbum);
       el("downloadAlbumButton").addEventListener("click", downloadAlbum);
       el("downloadMessagesButton").addEventListener("click", downloadMessages);
+      el("printGuestReportButton").addEventListener("click", printGuestReport);
       el("createVideoButton").addEventListener("click", createVideoSummary);
       el("closeAlbumButton").addEventListener("click", closeAlbum);
       el("nextPhotoButton").addEventListener("click", nextPhoto);
@@ -1143,6 +1431,7 @@
     function runSelfTests() {
       console.assert(sanitizeFileName("foto bonita 1.jpg") === "foto_bonita_1.jpg", "sanitizeFileName should replace spaces");
       console.assert(typeof buildMessagesText() === "string", "buildMessagesText should return string");
+      console.assert(getGiftLabel("pañales-etapa-2") === "Pañales Etapa 2", "getGiftLabel should return readable labels");
       console.assert(formatCountDown().days >= 0, "countdown days should be non-negative");
     }
 
