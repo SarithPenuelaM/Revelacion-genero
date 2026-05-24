@@ -217,6 +217,35 @@
       resize: vertical;
     }
 
+    .helper-text {
+      margin: -4px 0 14px;
+      color: #9a8a8a;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .associated-people-container {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .associated-person-field {
+      background: #fff9fb;
+      border: 1px solid #f0dddd;
+      border-radius: 16px;
+      padding: 12px;
+    }
+
+    .associated-person-field label {
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+
+    .associated-person-field input {
+      margin-bottom: 0;
+    }
+
     .mini-stats {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -633,6 +662,12 @@
             <option value="6">6 personas</option>
           </select>
 
+          <div id="associatedPeopleBlock" style="display:none;">
+            <label>Nombre de las personas asociadas</label>
+            <p class="helper-text">Escribe el nombre de cada acompañante para que aparezca correctamente en el reporte.</p>
+            <div id="associatedPeopleContainer" class="associated-people-container"></div>
+          </div>
+
           <label for="giftType">¿Quieres llevar un detalle para el bebé?</label>
           <select id="giftType">
             <option value="">Prefiero sorpresa ✨</option>
@@ -830,6 +865,75 @@
       return value === "virtual" ? "Participa virtualmente" : "Asiste presencialmente";
     }
 
+    function normalizeAssociatedPeople(value) {
+      if (Array.isArray(value)) {
+        return value.map((name) => String(name || "").trim()).filter(Boolean);
+      }
+
+      if (typeof value === "string") {
+        return value.split(/[\n,;]/).map((name) => name.trim()).filter(Boolean);
+      }
+
+      return [];
+    }
+
+    function buildPeopleNames(guest) {
+      const mainName = String(guest.name || "Invitado").trim() || "Invitado";
+      const associatedPeople = normalizeAssociatedPeople(guest.associatedPeople);
+      return [mainName, ...associatedPeople];
+    }
+
+    function formatPeopleNames(guest) {
+      const names = buildPeopleNames(guest);
+      const expectedCount = Number(guest.count || names.length || 1);
+      const missingNames = Math.max(expectedCount - names.length, 0);
+
+      if (missingNames > 0) {
+        names.push(`${missingNames} persona(s) sin nombre registrado`);
+      }
+
+      return names.join(", ");
+    }
+
+    function getAssociatedPeopleFromForm() {
+      return Array.from(document.querySelectorAll(".associated-person-input"))
+        .map((input) => input.value.trim())
+        .filter(Boolean);
+    }
+
+    function renderAssociatedPeopleFields() {
+      const count = Number(el("guestCount")?.value || 1);
+      const block = el("associatedPeopleBlock");
+      const container = el("associatedPeopleContainer");
+
+      if (!block || !container) return;
+
+      container.innerHTML = "";
+
+      if (count <= 1) {
+        block.style.display = "none";
+        return;
+      }
+
+      block.style.display = "block";
+
+      for (let index = 1; index < count; index += 1) {
+        const wrapper = createElement("div", "associated-person-field");
+        const label = createElement("label", "", `Acompañante ${index}`);
+        label.setAttribute("for", `associatedPerson${index}`);
+
+        const input = document.createElement("input");
+        input.id = `associatedPerson${index}`;
+        input.className = "associated-person-input";
+        input.required = true;
+        input.placeholder = `Nombre del acompañante ${index}`;
+
+        wrapper.appendChild(label);
+        wrapper.appendChild(input);
+        container.appendChild(wrapper);
+      }
+    }
+
     function formatGuestDate(createdAt) {
       if (createdAt && typeof createdAt.toDate === "function") {
         return createdAt.toDate().toLocaleString("es-CO", {
@@ -892,9 +996,15 @@
       const count = Number(el("guestCount").value);
       const giftType = el("giftType").value;
       const message = el("guestMessage").value.trim();
+      const associatedPeople = getAssociatedPeopleFromForm();
 
       if (!name || !message || !count) {
         alert("Por favor completa tu nombre, cantidad de personas y mensaje.");
+        return;
+      }
+
+      if (count > 1 && associatedPeople.length !== count - 1) {
+        alert("Por favor escribe el nombre de cada acompañante.");
         return;
       }
 
@@ -902,12 +1012,14 @@
         name,
         attendanceType,
         count,
+        associatedPeople,
         message,
         giftType,
         createdAt: serverTimestamp()
       });
 
       event.target.reset();
+      renderAssociatedPeopleFields();
       alert("Gracias por confirmar tu asistencia.");
     }
 
@@ -964,6 +1076,7 @@
           count,
           giftType: data.giftType || "",
           giftLabel: getGiftLabel(data.giftType),
+          associatedPeople: normalizeAssociatedPeople(data.associatedPeople),
           message: data.message || "",
           createdAt: data.createdAt || null
         };
@@ -983,7 +1096,7 @@
         const meta = createElement(
           "small",
           "",
-          `${guestDetail.attendanceLabel} con ${count} persona(s)`
+          `${guestDetail.attendanceLabel} con ${count} persona(s): ${formatPeopleNames(guestDetail)}`
         );
 
         card.appendChild(name);
@@ -1014,11 +1127,12 @@
         else totals.presencial += count;
 
         if (!totals.gifts[guest.giftLabel]) {
-          totals.gifts[guest.giftLabel] = { confirmations: 0, people: 0 };
+          totals.gifts[guest.giftLabel] = { confirmations: 0, people: 0, names: [] };
         }
 
         totals.gifts[guest.giftLabel].confirmations += 1;
         totals.gifts[guest.giftLabel].people += count;
+        totals.gifts[guest.giftLabel].names.push(...buildPeopleNames(guest));
       });
 
       return totals;
@@ -1038,6 +1152,7 @@
             <td>${escapeHtml(gift)}</td>
             <td>${data.confirmations}</td>
             <td>${data.people}</td>
+            <td>${escapeHtml(data.names.join(", "))}</td>
           </tr>
         `)
         .join("");
@@ -1049,6 +1164,7 @@
             <td>${escapeHtml(guest.name)}</td>
             <td>${escapeHtml(guest.attendanceLabel)}</td>
             <td>${guest.count}</td>
+            <td>${escapeHtml(formatPeopleNames(guest))}</td>
             <td>${escapeHtml(guest.giftLabel)}</td>
             <td>${escapeHtml(guest.message)}</td>
             <td>${escapeHtml(formatGuestDate(guest.createdAt))}</td>
@@ -1166,11 +1282,12 @@
                 <tr>
                   <th>Regalo / detalle</th>
                   <th>Confirmaciones</th>
-                  <th>Personas asociadas</th>
+                  <th>Total personas</th>
+                  <th>Nombres asociados</th>
                 </tr>
               </thead>
               <tbody>
-                ${giftRows || '<tr><td colspan="3">No hay regalos registrados.</td></tr>'}
+                ${giftRows || '<tr><td colspan="4">No hay regalos registrados.</td></tr>'}
               </tbody>
             </table>
           </section>
@@ -1183,14 +1300,15 @@
                   <th>#</th>
                   <th>Nombre</th>
                   <th>Participación</th>
-                  <th>Personas</th>
+                  <th>Total personas</th>
+                  <th>Personas asociadas</th>
                   <th>Regalo</th>
                   <th>Mensaje</th>
                   <th>Fecha de confirmación</th>
                 </tr>
               </thead>
               <tbody>
-                ${guestRows || '<tr><td colspan="7">No hay asistentes registrados.</td></tr>'}
+                ${guestRows || '<tr><td colspan="8">No hay asistentes registrados.</td></tr>'}
               </tbody>
             </table>
           </section>
@@ -1405,6 +1523,7 @@
 
     function setupListeners() {
       el("guestForm").addEventListener("submit", handleGuestSubmit);
+      el("guestCount").addEventListener("change", renderAssociatedPeopleFields);
       el("boyVoteButton").addEventListener("click", () => vote("boy"));
       el("girlVoteButton").addEventListener("click", () => vote("girl"));
       el("uploadPhotoButton").addEventListener("click", uploadPhoto);
@@ -1436,6 +1555,7 @@
     }
 
     setupListeners();
+    renderAssociatedPeopleFields();
     setupLiveStreamButton();
     renderQrCode();
     updateCountDown();
